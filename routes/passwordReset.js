@@ -1,15 +1,11 @@
 const jwt = require("jsonwebtoken");
-const Joi = require("joi");
 const express = require("express");
 const router = express.Router();
-const { User } = require("../models/users");
+const User  = require("../models/users");
 const Token = require("../models/token");
 require("dotenv").config();
 router.post("/forgot-password", async (req, res) => {
   try {
-    const schema = Joi.object({ email: Joi.string().email().required() });
-    const { error } = schema.validate(req.body);
-    if (error) return res.status(400).send(error.message);
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(400).send("user don't exist");
 
@@ -17,7 +13,7 @@ router.post("/forgot-password", async (req, res) => {
     if (!token) {
       token = await new Token({
         userId: user._id,
-        token: jwt.sign({ userId: user._id }, "some_secret_key", {
+        token: jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
           expiresIn: "600",
         }),
       }).save();
@@ -34,16 +30,12 @@ router.post(
   "/verify-reset-password/:password-reset-token",
   async (req, res) => {
     try {
-      const schema = Joi.object({ password: Joi.string().required() });
-      const { error } = schema.validate(req.body);
-      if (error) return res.status(400).send(error.message);
-
-      const user = await User.findById(req.headers["verify-reset-password"]);
+      const user = await User.findById(req.headers.verify-reset-password);
       if (!user) return res.status(400).send("invalid user");
 
       const token = await Token.findOne({
         userId: user._id,
-        token: req.params["password-reset-token"],
+        token: req.params.password-reset-token,
       });
       if (!token) return res.status(400).send("invalid token");
 

@@ -10,12 +10,7 @@ const tokenSchema = new Schema({
     token:{
         type: String,
         required: true
-    },
-    // createdAt: {
-    //     type: Date,
-    //     default: Date.now,
-    //     expires: 600,
-    // }
+    }
 });
 
 module.exports = mongoose.model("token", tokenSchema);
